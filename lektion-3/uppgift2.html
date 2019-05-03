@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        #getmessages:hover {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <form action="" id="loginform">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username">
+        <br>
+        <label for="pwd">Password</label>
+        <input type="password" id="pwd" name="pwd">
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <div id="dashboard" class="hidden">
+
+        <h1 id="welcometext"></h1>
+        <div id="messages" class="hidden">
+            <form action="uppgift2.php/?messages=true" id="getmessages">
+                
+                <button style="width:100px;height:50px;"  >Hämta meddelanden</button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        const loginform = document.getElementById('loginform');
+        const dashboard = document.getElementById('dashboard');
+        const useroutput = document.getElementById('welcometext');
+        const messagebox = document.getElementById('messages');
+        const getmessages = document.getElementById('getmessages');
+
+        loginform.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(loginform);
+            fetch('uppgift2.php', {
+                    method: 'POST',
+                    body: formData
+
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loginform.classList.add('hidden');
+                    dashboard.classList.remove('hidden');
+                    useroutput.textContent = "Inloggningen gick utmärkt. Välkommen " + data.user
+                    console.log(data);
+                    messagebox.classList.remove('hidden');
+
+
+                    
+
+
+                })
+                .catch(err => {
+                    dashboard.classList.remove('hidden');
+                    useroutput.textContent = "Det blev något fel vid inloggningen. Felkod: " + err
+
+                    setInterval(() => {
+                        dashboard.classList.add('hidden');
+                        useroutput.textContent = ""
+                    }, 3000);
+                    console.log(err);
+                });
+        });
+
+        getmessages.addEventListener('click', (e) => {
+                        e.preventDefault();
+
+
+                        fetch('uppgift2.php?message=true')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw Error(response.statusText);
+                                }
+                                console.log(response);
+                                return response.json()
+                            })
+                            .then(data =>{
+                                console.log(data.message)
+                                const ul = document.createElement('ul');
+                                data.message.forEach(element => {
+
+                                    const li = document.createElement('li');
+                                    li.textContent = element;
+                                    ul.appendChild(li);
+
+                                });
+                                dashboard.appendChild(ul);
+                            })
+                            .catch(err =>{
+                                console.log(err);
+                            })
+
+                    })
+    </script>
+</body>
+
+</html>
